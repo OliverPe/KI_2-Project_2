@@ -103,7 +103,6 @@ class BustersAgent:
         return self.chooseAction(gameState)
 
     def chooseAction(self, gameState):
-        "By default, a BustersAgent just stops.  This should be overridden."
         return Directions.STOP
 
 class BustersKeyboardAgent(BustersAgent, KeyboardAgent):
@@ -144,3 +143,24 @@ class GreedyBustersAgent(BustersAgent):
             [beliefs for i, beliefs in enumerate(self.ghostBeliefs)
              if livingGhosts[i+1]]
         "*** YOUR CODE HERE ***"
+        # find the most likely position of each remaining uncaptured ghost
+        closest_ghost_distance = float("inf")
+
+        for distr in livingGhostPositionDistributions:
+            ghost_position = distr.argMax()
+            distance = self.distancer.getDistance(ghost_position, pacmanPosition)
+            if closest_ghost_distance > distance:
+                closest_ghost_distance = distance
+                closest_ghost_position = ghost_position
+
+        # choose an action that minimizes the maze distance to the closest ghost
+        actionDistance = float("inf")
+        action = None
+        for a in legal:
+            successorPosition = Actions.getSuccessor(pacmanPosition, a)
+            temp = self.distancer.getDistance(closest_ghost_position, successorPosition)
+            if temp < actionDistance:
+                actionDistance = temp
+                action = a
+            
+        return action

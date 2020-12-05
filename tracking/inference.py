@@ -308,7 +308,7 @@ class ExactInference(InferenceModule):
         distribution.normalize()
         self.beliefs = distribution
 
-        
+
 
     def elapseTime(self, gameState):
         """
@@ -320,7 +320,15 @@ class ExactInference(InferenceModule):
         current position is known.
         """
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        dist = DiscreteDistribution()
+        for oldPos in self.allPositions:
+            newPosDist = self.getPositionDistribution(gameState, oldPos)
+            oldProb = self.beliefs[oldPos]
+            for newPos in newPosDist.keys():
+                dist[newPos] += oldProb * newPosDist[newPos]
+            
+        self.beliefs = dist
+
 
     def getBeliefDistribution(self):
         return self.beliefs
@@ -347,7 +355,16 @@ class ParticleFilter(InferenceModule):
         """
         self.particles = []
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        n = self.numParticles
+        size = len(self.legalPositions)
+
+        while n > 0:
+            if n > size:
+                self.particles += self.legalPositions
+                n -= size
+            else:
+                self.particles += self.legalPositions[0:n]
+                n = 0
 
     def observeUpdate(self, observation, gameState):
         """
